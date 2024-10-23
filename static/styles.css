@@ -1,4 +1,5 @@
-/* General body styling */
+
+/*
 body {
     font-family: Arial, sans-serif;
     margin: 0;
@@ -7,24 +8,41 @@ body {
     color: #333;
     line-height: 1.6;
     height: 100vh; /* Full viewport height */
+
+
+
+/* General body styling */
+html, body {
+    height: 100%; /* Full height */
+    margin: 0; /* Remove default margin */
 }
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    color: #333;
+    line-height: 1.6;
+}
+
 
 /* Container for map and content */
-.container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 100%; /* Full height */
+#controls {
+    position: absolute; /* Position controls */
+    z-index: 1000; /* Ensure controls are on top of the map */
+    background: rgba(255, 255, 255, 0.8); /* Semi-transparent background */
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
 }
 
-/* Map container - full width, responsive */
+/* Map container - full width and height */
 #map {
-    width: 100%;
-    height: 500px; /* Adjust height as needed */
-    border: 2px solid #ccc;
-    margin-top: 20px;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    position: absolute; /* Position it to fill the entire window */
+    top: 0; /* Align to the top */
+    left: 0; /* Align to the left */
+    z-index: 1; /* Behind the controls */
 }
 
 

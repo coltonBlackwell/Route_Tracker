@@ -34,14 +34,20 @@ $(document).ready(function() {
             contentType: false,
             processData: false,
             success: function(data) {
-                // Update the list of GPX files with the newly uploaded file
-                $('#gpx-list').append(`<li><a href="#" onclick="loadRun('${data.filename}')">${data.filename}</a></li>`);
+                
+                $('#gpx-list').append(`
+                    <li>
+                        <a href="#" onclick="loadRun('${data.filename}')">${data.filename}</a>
+                        <button onclick="deleteRun('${data.filename}')">Delete</button>
+                    </li>
+                `);
             },
             error: function(err) {
                 alert('Error uploading file: ' + err.responseJSON.error);
             }
         });
     });
+
 
     // Function to delete the selected run
     window.deleteRun = function(filename) {
