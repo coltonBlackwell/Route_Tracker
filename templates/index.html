@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Run Tracker</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.css" />
+    <script src="{{ url_for('static', filename='app.js') }}"></script> <!-- Link to the JS file -->
+</head>
+<body>
+    <div id="controls">
+        <h2>Upload and View Your Runs</h2>
+        <form id="upload-form" enctype="multipart/form-data">
+            <input type="file" id="gpx_file" name="gpx_file" accept=".gpx" required>
+            <input type="text" id="new_filename" name="new_filename" placeholder="Enter new filename" required>
+            <input type="submit" value="Upload GPX">
+        </form>
+        <h3>Select a Run</h3>
+        <ul id="gpx-list">
+            {% for file in gpx_files %}
+                <li>
+                    <a href="#" onclick="loadRun('{{ file }}')">{{ file }}</a>
+                    <button onclick="deleteRun('{{ file }}')">Delete</button>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+    
+    <!-- Map Container -->
+    <div id="map"></div>
+</body>
+</html>

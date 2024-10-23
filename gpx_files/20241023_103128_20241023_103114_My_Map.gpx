@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?><gpx xmlns="http://www.topografix.com/GPX/1/1" xmlns:gpxtpx="http://www.garmin.com/xmlschemas/TrackPointExtension/v1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:gpxx="http://www.garmin.com/xmlschemas/GpxExtensions/v3" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd http://www.garmin.com/xmlschemas/GpxExtensions/v3 http://www.garmin.com/xmlschemas/GpxExtensionsv3.xsd http://www.garmin.com/xmlschemas/TrackPointExtension/v1 http://www.garmin.com/xmlschemas/TrackPointExtensionv1.xsd" version="1.1">
+  <metadata>
+    <name>My Map</name>
+    <copyright author="Tracklia app (https://play.google.com/store/apps/details?id=app.tracklia)"/>
+    <time>2024-10-23T17:03:26Z</time>
+  </metadata>
+  <trk>
+    <name>Walk to water</name>
+    <desc/>
+    <number>0</number>
+    <trkseg>
+      <trkpt lat="49.279692069758006" lon="-122.9186596865682">
+        <ele>329.5</ele>
+        <time>2024-10-23T17:02:17Z</time>
+      </trkpt>
+      <trkpt lat="49.27969134232269" lon="-122.91865965782259">
+        <ele>329.5</ele>
+        <time>2024-10-23T17:02:20Z</time>
+      </trkpt>
+      <trkpt lat="49.279523888437765" lon="-122.91869999701865">
+        <ele>329.5</ele>
+        <time>2024-10-23T17:02:21Z</time>
+      </trkpt>
+      <trkpt lat="49.279500953994656" lon="-122.91871490816888">
+        <ele>329.5</ele>
+        <time>2024-10-23T17:02:23Z</time>
+      </trkpt>
+      <trkpt lat="49.279523201742556" lon="-122.9187264568349">
+        <ele>329.5</ele>
+        <time>2024-10-23T17:02:25Z</time>
+      </trkpt>
+      <trkpt lat="49.27952346406525" lon="-122.91872659750968">
+        <ele>329.5</ele>
+        <time>2024-10-23T17:02:27Z</time>
+      </trkpt>
+      <trkpt lat="49.27952374518368" lon="-122.91872677501625">
+        <ele>329.5</ele>
+        <time>2024-10-23T17:02:29Z</time>
+      </trkpt>
+      <trkpt lat="49.2795290373028" lon="-122.91871720186266">
+        <ele>329.5</ele>
+        <time>2024-10-23T17:02:39Z</time>
+      </trkpt>
+      <trkpt lat="49.27953841127429" lon="-122.9187008769357">
+        <ele>329.5</ele>
+        <time>2024-10-23T17:02:43Z</time>
+      </trkpt>
+      <trkpt lat="49.27954628319577" lon="-122.91870476874816">
+        <ele>329.6000061035156</ele>
+        <time>2024-10-23T17:02:48Z</time>
+      </trkpt>
+    </trkseg>
+  </trk>
+</gpx>
