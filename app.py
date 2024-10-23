@@ -69,12 +69,23 @@ def view_run(filename):
         for segment in track.segments:
             for point in segment.points:
                 coordinates.append([point.latitude, point.longitude])
-
+    
     if not coordinates:
         return jsonify({'error': 'No coordinates found in GPX file'}), 400
 
-    # Return the coordinates as JSON to be plotted on the map
-    return jsonify({'coordinates': coordinates}), 200
+    # Extract additional information
+    start_point = coordinates[0] if coordinates else None
+    end_point = coordinates[-1] if coordinates else None
+    duration = gpx.get_duration()  # Adjust this to get actual duration based on your GPX structure
+
+    # Return the coordinates and additional information as JSON
+    return jsonify({
+        'coordinates': coordinates,
+        'start_point': start_point,
+        'end_point': end_point,
+        'duration': duration,
+    }), 200
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

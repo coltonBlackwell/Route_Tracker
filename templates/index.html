@@ -8,11 +8,10 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.css" />
-    <script src="{{ url_for('static', filename='app.js') }}"></script> <!-- Link to the JS file -->
+    <script src="{{ url_for('static', filename='app.js') }}"></script>
 </head>
 <body>
     <div id="controls">
-        <h1>Path Tracker</h1>
         <h2>Upload and View Your Runs</h2>
         <form id="upload-form" enctype="multipart/form-data">
             <input type="file" id="gpx_file" name="gpx_file" accept=".gpx" required>
@@ -32,5 +31,9 @@
     
     <!-- Map Container -->
     <div id="map"></div>
+
+    <!-- Run Details Container -->
+    <div id="run-details"></div>
+
 </body>
 </html>
