@@ -3,6 +3,7 @@ from flask import Flask, render_template, request, jsonify
 import folium
 import gpxpy
 from datetime import datetime
+from math import radians, sin, cos, sqrt, atan2
 
 app = Flask(__name__)
 
@@ -10,6 +11,37 @@ app = Flask(__name__)
 UPLOAD_FOLDER = os.path.abspath(os.path.join(os.path.dirname(__file__), '../gpx_files'))
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+def haversine(coord1, coord2):
+    """Calculate the Haversine distance between two latitude/longitude points."""
+    R = 6371.0  # Earth radius in kilometers
+    lat1, lon1 = radians(coord1[0]), radians(coord1[1])
+    lat2, lon2 = radians(coord2[0]), radians(coord2[1])
+
+    dlat = lat2 - lat1
+    dlon = lon2 - lon1
+
+    a = sin(dlat / 2)**2 + cos(lat1) * cos(lat2) * sin(dlon / 2)**2
+    c = 2 * atan2(sqrt(a), sqrt(1 - a))
+
+    return R * c  # returns distance in kilometers
+
+def calculate_distance(gpx_data):
+    """Calculate the total distance from the GPX data."""
+    coordinates = []
+
+    # Extracting coordinates from the GPX data
+    for track in gpx_data.tracks:
+        for segment in track.segments:
+            for point in segment.points:
+                coordinates.append((point.latitude, point.longitude))
+    
+    # Calculate the total distance
+    total_distance = 0.0
+    for i in range(1, len(coordinates)):
+        total_distance += haversine(coordinates[i - 1], coordinates[i])
+
+    return round(total_distance, 2)  # Round to 2 decimal places
 
 @app.route('/')
 def index():
@@ -77,6 +109,7 @@ def view_run(filename):
     start_point = coordinates[0] if coordinates else None
     end_point = coordinates[-1] if coordinates else None
     duration = gpx.get_duration()  # Adjust this to get actual duration based on your GPX structure
+    distance = calculate_distance(gpx)  # Calculate total distance
 
     # Return the coordinates and additional information as JSON
     return jsonify({
@@ -84,6 +117,7 @@ def view_run(filename):
         'start_point': start_point,
         'end_point': end_point,
         'duration': duration,
+        'distance': distance,  # Add total distance to the response
     }), 200
 
 
