@@ -1,9 +1,13 @@
 import os
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, send_file
 import folium
 import gpxpy
 from datetime import datetime
 from math import radians, sin, cos, sqrt, atan2
+from matplotlib.figure import Figure
+import io
+
+
 
 app = Flask(__name__)
 
@@ -41,7 +45,7 @@ def calculate_distance(gpx_data):
     for i in range(1, len(coordinates)):
         total_distance += haversine(coordinates[i - 1], coordinates[i])
 
-    return round(total_distance, 2)  # Round to 2 decimal places
+    return round(total_distance, 2)  # Returns total distance in kilometers
 
 @app.route('/')
 def index():
@@ -108,7 +112,8 @@ def view_run(filename):
     # Extract additional information
     start_point = coordinates[0] if coordinates else None
     end_point = coordinates[-1] if coordinates else None
-    duration = gpx.get_duration()  # Adjust this to get actual duration based on your GPX structure
+    duration_seconds = gpx.get_duration()  # Get duration in seconds
+    duration_minutes = round(duration_seconds / 60, 2) if duration_seconds else None  # Convert to minutes
     distance = calculate_distance(gpx)  # Calculate total distance
 
     # Return the coordinates and additional information as JSON
@@ -116,10 +121,46 @@ def view_run(filename):
         'coordinates': coordinates,
         'start_point': start_point,
         'end_point': end_point,
-        'duration': duration,
+        'duration': duration_minutes,  # Return duration in minutes
         'distance': distance,  # Add total distance to the response
     }), 200
 
+
+@app.route('/elevation_plot/<filename>')
+def elevation_plot(filename):
+    filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+    
+    if not os.path.exists(filepath):
+        return jsonify({'error': 'GPX file not found'}), 404
+
+    # Parse GPX file for elevation and time data
+    with open(filepath, 'r') as gpx_file:
+        gpx = gpxpy.parse(gpx_file)
+    
+    times = []
+    elevations = []
+
+    for track in gpx.tracks:
+        for segment in track.segments:
+            for point in segment.points:
+                times.append(datetime.fromisoformat(point.time.isoformat()))
+                elevations.append(point.elevation)
+    
+    # Plot elevation over time
+    fig = Figure()
+    ax = fig.subplots()
+    ax.plot(times, elevations, label="Elevation (m)", color="blue")
+    ax.set_title("Elevation Over Time")
+    ax.set_xlabel("Time")
+    ax.set_ylabel("Elevation (m)")
+    ax.legend()
+
+    # Save the plot to a BytesIO object and serve as a response
+    img_bytes = io.BytesIO()
+    fig.savefig(img_bytes, format='png')
+    img_bytes.seek(0)
+
+    return send_file(img_bytes, mimetype='image/png')
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

@@ -20,6 +20,10 @@ $(document).ready(function() {
 
             // Display run details
             displayRunDetails(data);
+            
+            // Load elevation plot in the modal
+            $('#elevation-plot').attr('src', `/elevation_plot/${filename}`);
+            $('#elevationModal').modal('show'); // Show the modal
         }).fail(function(err) {
             alert('Error loading run: ' + err.responseJSON.error);
         });
@@ -75,7 +79,7 @@ $(document).ready(function() {
 
         const startPoint = data.start_point ? `Start: ${data.start_point[0]}, ${data.start_point[1]}` : 'No start point';
         const endPoint = data.end_point ? `End: ${data.end_point[0]}, ${data.end_point[1]}` : 'No end point';
-        const duration = `Duration: ${data.duration} seconds`;
+        const duration = `Duration: ${data.duration} Minutes`;
         const distance = `Distance: ${data.distance} meters`; // Adjust as needed
 
         detailsContainer.append(`
@@ -86,4 +90,18 @@ $(document).ready(function() {
             <p>${distance}</p>
         `);
     }
+
+    // Toggle the entire details container
+    $('#toggle-details').click(function() {
+        $('#details-container').toggle(); // Toggle visibility
+        const buttonText = $('#details-container').is(':visible') ? 'Hide Details' : 'Show Details';
+        $(this).text(buttonText); // Change button text accordingly
+    });
+
+    // Toggle elevation plot container
+    $('#toggle-elevation').click(function() {
+        $('#elevation-plot-container').toggle(); // Toggle visibility
+        const buttonText = $('#elevation-plot-container').is(':visible') ? 'Hide Elevation Plot' : 'Show Elevation Plot';
+        $(this).text(buttonText); // Change button text accordingly
+    });
 });

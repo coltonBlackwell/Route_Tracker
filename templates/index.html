@@ -46,19 +46,33 @@
                     </ul>
                 </div>
 
-                <div class="container">
-                    <div>
-                        <div class="col"><div id="run-details" style="margin-bottom: 20px;"></div></div>
-                        <div class="col"></div>
-                        <div class="col"></div>
+                <div>
+                    <!-- Button to toggle the entire container -->
+                    <button id="toggle-details" class="btn btn-primary">Show Details</button> <!-- Default text can be "Hide Details" -->
+                
+                    <div id="details-container" class="container" style="display: none;"> <!-- Initially visible -->
+                        <div>
+                            <div class="col">
+                                <div id="run-details" style="margin-bottom: 20px;"></div>
+                
+                                <!-- Button to toggle elevation plot -->
+                                <!-- <button id="toggle-elevation" class="btn btn-primary">Hide Elevation Plot</button> Default text can be "Hide Elevation Plot" -->
+                
+                                <!-- <div id="elevation-plot-container" class="container mt-3" style="display: block;"> Initially visible -->
+                                    <h3>Elevation Over Time</h3>
+                                    <img id="elevation-plot" src="" alt="Elevation Plot" style="width:100%; max-width:700px;">
+                                <!-- </div> -->
+                            </div>
+                        </div>
                     </div>
-            
                 </div>
+                
+                
 
 
             </div>
-            <div class="col"></div>
-            <div class="col"></div>
+            <!-- <div class="col"></div>
+            <div class="col"></div> -->
         </div>
 
     </div>
