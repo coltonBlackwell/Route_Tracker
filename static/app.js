@@ -121,7 +121,7 @@ $(document).ready(function() {
         const startPoint = data.start_point ? `Start: ${data.start_point[0]}, ${data.start_point[1]}` : 'No start point';
         const endPoint = data.end_point ? `End: ${data.end_point[0]}, ${data.end_point[1]}` : 'No end point';
         const duration = `Duration: ${data.duration} Minutes`;
-        const distance = `Distance: ${data.distance} meters`; // Adjust as needed
+        const distance = `Distance: ${data.distance} Kilometers`; // Adjust as needed
 
         detailsContainer.append(`
             <h3>Run Details</h3>

@@ -28,6 +28,7 @@ def haversine(coord1, coord2):
 
     return R * c  # returns distance in kilometers
 
+
 def calculate_distance(gpx_data):
     """Calculate the total distance from the GPX data."""
     coordinates = []
@@ -44,6 +45,7 @@ def calculate_distance(gpx_data):
         total_distance += haversine(coordinates[i - 1], coordinates[i])
 
     return round(total_distance, 2)  # Returns total distance in kilometers
+
 
 @app.route('/')
 def index():
@@ -128,7 +130,7 @@ def view_run(filename):
     end_point = coordinates[-1] if coordinates else None
     duration_seconds = gpx.get_duration()
     duration_minutes = round(duration_seconds / 60, 2) if duration_seconds else None
-    distance = calculate_distance(gpx)
+    distance = calculate_distance(gpx)  # Ensure this uses the correct GPX data
 
     return jsonify({
         'coordinates': coordinates,
