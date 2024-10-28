@@ -7,33 +7,75 @@ $(document).ready(function() {
     }).addTo(map);
 
     var polyline; // Global variable to store the polyline
+    window.dots = []; // Global variable to store dot markers
 
-    // Function to load and display the selected run
+    // Unified function to load and display the selected run with polyline and individual dots
     window.loadRun = function(filename) {
         $.getJSON(`/view_run/${filename}`, function(data) {
+            // Clear previous layers
             if (polyline) {
-                map.removeLayer(polyline); // Remove previous polyline if it exists
+                map.removeLayer(polyline);
+                polyline = null;
             }
-            var latlngs = data.coordinates.map(coord => [coord[0], coord[1]]);
-            polyline = L.polyline(latlngs, {color: 'blue'}).addTo(map);
-            map.fitBounds(polyline.getBounds()); // Adjust map view to fit the run
-
-            // Display run details
-            displayRunDetails(data);
+            if (window.dots) {
+                window.dots.forEach(dot => map.removeLayer(dot));
+            }
+            window.dots = [];
+    
+            function getColor(speed) {
+                if (speed > 80) return '#32CD32'; // High speed - Lime Green
+                else if (speed > 60) return '#90EE90'; // Slightly lower high speed - Light Green
+                else if (speed > 35) return '#FFD700'; // Moderate speed - Gold
+                else if (speed > 15) return '#FFA500'; // Slightly lower moderate speed - Orange
+                else return '#FF6347'; // Low speed - Tomato
+            }
             
-            // Load elevation plot in the modal
+    
+            // Array to hold latlngs for the polyline
+            var latlngs = [];
+    
+            // Add individual dots with speed tooltips and colors
+            data.coordinates.forEach(coord => {
+                const color = getColor(coord.speed); // Determine color based on speed
+                const dot = L.circleMarker([coord.latitude, coord.longitude], {
+                    radius: 5,
+                    color: color,
+                    fillColor: color,
+                    fillOpacity: 0.7
+                }).addTo(map);
+    
+                // Tooltip shows speed on hover
+                const tooltipText = coord.speed ? `Speed: ${coord.speed} km/h` : 'Speed unavailable';
+                dot.bindTooltip(tooltipText, { permanent: false, direction: 'top' });
+    
+                window.dots.push(dot);
+                latlngs.push([coord.latitude, coord.longitude]); // Add to latlngs array
+            });
+    
+            // Create a polyline using the latlngs array to connect the dots
+            if (latlngs.length > 0) {
+                polyline = L.polyline(latlngs, { color: 'black', weight: 2 }).addTo(map);
+                map.fitBounds(polyline.getBounds()); // Adjust map view to fit the polyline
+            }
+    
+            // Display run details and elevation plot
+            displayRunDetails(data);
             $('#elevation-plot').attr('src', `/elevation_plot/${filename}`);
-            $('#elevationModal').modal('show'); // Show the modal
+            $('#elevationModal').modal('show');
         }).fail(function(err) {
             alert('Error loading run: ' + err.responseJSON.error);
         });
     };
+    
+    
+    
+    
 
     // Function to handle the file upload
     $('#upload-form').submit(function(event) {
         event.preventDefault();
         var formData = new FormData(this);
-        
+
         $.ajax({
             url: '/upload_gpx',
             type: 'POST',
@@ -49,7 +91,7 @@ $(document).ready(function() {
                 `);
             },
             error: function(err) {
-                alert('Error uploading file: ' + err.responseJSON.error);
+                alert('Error uploading file: ' + (err.responseJSON ? err.responseJSON.error : err.statusText));
             }
         });
     });
@@ -62,11 +104,10 @@ $(document).ready(function() {
                 type: 'DELETE',
                 success: function(response) {
                     alert(response.message);
-                    // Remove the run from the list in the UI
                     $(`#gpx-list li:contains('${filename}')`).remove();
                 },
                 error: function(err) {
-                    alert('Error deleting run: ' + err.responseJSON.error);
+                    alert('Error deleting run: ' + (err.responseJSON ? err.responseJSON.error : err.statusText));
                 }
             });
         }
@@ -91,17 +132,17 @@ $(document).ready(function() {
         `);
     }
 
-    // Toggle the entire details container
+    // Toggle details container
     $('#toggle-details').click(function() {
-        $('#details-container').toggle(); // Toggle visibility
+        $('#details-container').toggle();
         const buttonText = $('#details-container').is(':visible') ? 'Hide Details' : 'Show Details';
-        $(this).text(buttonText); // Change button text accordingly
+        $(this).text(buttonText);
     });
 
     // Toggle elevation plot container
     $('#toggle-elevation').click(function() {
-        $('#elevation-plot-container').toggle(); // Toggle visibility
+        $('#elevation-plot-container').toggle();
         const buttonText = $('#elevation-plot-container').is(':visible') ? 'Hide Elevation Plot' : 'Show Elevation Plot';
-        $(this).text(buttonText); // Change button text accordingly
+        $(this).text(buttonText);
     });
 });

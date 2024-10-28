@@ -1,13 +1,11 @@
-import os
 from flask import Flask, render_template, request, jsonify, send_file
-import folium
+import os
+import xml.etree.ElementTree as ET
 import gpxpy
 from datetime import datetime
 from math import radians, sin, cos, sqrt, atan2
 from matplotlib.figure import Figure
 import io
-
-
 
 app = Flask(__name__)
 
@@ -85,45 +83,61 @@ def delete_run(filename):
         return jsonify({'message': 'Run deleted successfully!'}), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+from datetime import datetime
 
 @app.route('/view_run/<filename>')
 def view_run(filename):
-    # Load the selected GPX file
     filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
     
-    # Ensure the file exists
     if not os.path.exists(filepath):
         return jsonify({'error': 'GPX file not found'}), 404
     
-    # Parse the GPX file
     with open(filepath, 'r') as gpx_file:
         gpx = gpxpy.parse(gpx_file)
 
-    # Extract coordinates (latitude, longitude) from GPX file
     coordinates = []
+    previous_point = None
+    
     for track in gpx.tracks:
         for segment in track.segments:
             for point in segment.points:
-                coordinates.append([point.latitude, point.longitude])
-    
+                if previous_point:
+                    # Calculate the time difference in seconds
+                    time_diff = (point.time - previous_point.time).total_seconds() if point.time and previous_point.time else 0
+                    if time_diff > 0:
+                        # Calculate distance and speed in km/h
+                        distance_km = haversine((previous_point.latitude, previous_point.longitude), (point.latitude, point.longitude))
+                        speed_kmh = (distance_km / (time_diff / 3600))  # km/h
+                    else:
+                        speed_kmh = None  # No speed if no time difference
+                else:
+                    speed_kmh = None  # No speed for the first point
+
+                # Store latitude, longitude, and calculated speed
+                coordinates.append({
+                    'latitude': point.latitude,
+                    'longitude': point.longitude,
+                    'speed': round(speed_kmh, 2) if speed_kmh is not None else None
+                })
+                previous_point = point
+
     if not coordinates:
         return jsonify({'error': 'No coordinates found in GPX file'}), 400
 
-    # Extract additional information
     start_point = coordinates[0] if coordinates else None
     end_point = coordinates[-1] if coordinates else None
-    duration_seconds = gpx.get_duration()  # Get duration in seconds
-    duration_minutes = round(duration_seconds / 60, 2) if duration_seconds else None  # Convert to minutes
-    distance = calculate_distance(gpx)  # Calculate total distance
+    duration_seconds = gpx.get_duration()
+    duration_minutes = round(duration_seconds / 60, 2) if duration_seconds else None
+    distance = calculate_distance(gpx)
 
-    # Return the coordinates and additional information as JSON
     return jsonify({
         'coordinates': coordinates,
-        'start_point': start_point,
-        'end_point': end_point,
-        'duration': duration_minutes,  # Return duration in minutes
-        'distance': distance,  # Add total distance to the response
+        'start_point': [start_point['latitude'], start_point['longitude']] if start_point else None,
+        'end_point': [end_point['latitude'], end_point['longitude']] if end_point else None,
+        'duration': duration_minutes,
+        'distance': distance,
     }), 200
+
 
 
 @app.route('/elevation_plot/<filename>')
