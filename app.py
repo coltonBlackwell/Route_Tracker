@@ -6,6 +6,7 @@ from datetime import datetime
 from math import radians, sin, cos, sqrt, atan2
 from matplotlib.figure import Figure
 import io
+from mpl_toolkits.mplot3d import Axes3D
 
 app = Flask(__name__)
 
@@ -46,6 +47,34 @@ def calculate_distance(gpx_data):
 
     return round(total_distance, 2)  # Returns total distance in kilometers
 
+
+@app.route('/3d_plot/<filename>')
+def plot_3d(filename):
+    filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+    
+    if not os.path.exists(filepath):
+        return jsonify({'error': 'GPX file not found'}), 404
+
+    # Parse GPX file for elevation and coordinates
+    with open(filepath, 'r') as gpx_file:
+        gpx = gpxpy.parse(gpx_file)
+    
+    latitudes = []
+    longitudes = []
+    elevations = []
+
+    for track in gpx.tracks:
+        for segment in track.segments:
+            for point in segment.points:
+                latitudes.append(point.latitude)
+                longitudes.append(point.longitude)
+                elevations.append(point.elevation)
+
+    return jsonify({
+        'latitudes': latitudes,
+        'longitudes': longitudes,
+        'elevations': elevations,
+    }), 200
 
 @app.route('/')
 def index():

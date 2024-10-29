@@ -1,4 +1,12 @@
 $(document).ready(function() {
+
+    $('#toggle-display-box').click(function() {
+        $('#display-box').toggle();
+        const isVisible = $('#display-box').is(':visible');
+        $(this).text(isVisible ? 'Hide' : 'Show');
+    });
+
+    
     // Initialize the map once the DOM is fully loaded
     var map = L.map('map').setView([45.5236, -122.6750], 13); // Default location (centered on Portland, OR)
 
@@ -12,6 +20,13 @@ $(document).ready(function() {
     // Unified function to load and display the selected run with polyline and individual dots
     window.loadRun = function(filename) {
         $.getJSON(`/view_run/${filename}`, function(data) {
+
+                // Clear previously active link
+            $('#gpx-list a').removeClass('active');
+            // Add active class to the current link
+            $(`#gpx-list a:contains('${filename}')`).addClass('active');
+
+
             // Clear previous layers
             if (polyline) {
                 map.removeLayer(polyline);
@@ -29,8 +44,7 @@ $(document).ready(function() {
                 else if (speed > 15) return '#FFA500'; // Slightly lower moderate speed - Orange
                 else return '#FF6347'; // Low speed - Tomato
             }
-            
-    
+
             // Array to hold latlngs for the polyline
             var latlngs = [];
     
@@ -57,19 +71,14 @@ $(document).ready(function() {
                 polyline = L.polyline(latlngs, { color: 'black', weight: 2 }).addTo(map);
                 map.fitBounds(polyline.getBounds()); // Adjust map view to fit the polyline
             }
-    
-            // Display run details and elevation plot
+
             displayRunDetails(data);
             $('#elevation-plot').attr('src', `/elevation_plot/${filename}`);
-            $('#elevationModal').modal('show');
+            // create3DPlot(data.coordinates); // Create 3D plot with coordinates
         }).fail(function(err) {
-            alert('Error loading run: ' + err.responseJSON.error);
+            alert('Error loading run: ' + (err.responseJSON ? err.responseJSON.error : err.statusText));
         });
     };
-    
-    
-    
-    
 
     // Function to handle the file upload
     $('#upload-form').submit(function(event) {
@@ -113,6 +122,96 @@ $(document).ready(function() {
         }
     };
 
+    document.getElementById('plot-button').addEventListener('click', function() {
+        // Get the selected filename from the GPX list
+        const selectedLink = document.querySelector('#gpx-list a.active');
+        if (!selectedLink) {
+            alert('Please select a GPX file first.');
+            return;
+        }
+    
+        const filename = selectedLink.innerText; // Use the link text as the filename
+    
+        fetch(`/3d_plot/${filename}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert(data.error);
+                    return;
+                }
+    
+                const trace = {
+                    x: data.longitudes,
+                    y: data.latitudes,
+                    z: data.elevations,
+                    mode: 'markers',
+                    type: 'scatter3d',
+                    marker: {
+                        size: 5,
+                        color: data.elevations,
+                        colorscale: 'Viridis',
+                        showscale: true
+                    }
+                };
+    
+                const layout = {
+                    title: '3D Path Visualization',
+                    scene: {
+                        xaxis: { title: 'Longitude' },
+                        yaxis: { title: 'Latitude' },
+                        zaxis: { title: 'Elevation (m)' }
+                    }
+                };
+    
+                Plotly.newPlot('3d-plot', [trace], layout);
+            })
+            .catch(error => console.error('Error:', error));
+    });
+    
+
+    // Function to create 3D plot using Plotly
+    function create3DPlot(coordinates) {
+        // Map latitude, longitude, and elevation from coordinates
+        const latitudes = coordinates.map(coord => coord.latitude);
+        const longitudes = coordinates.map(coord => coord.longitude);
+        const elevations = coordinates.map(coord => coord.elevation !== undefined ? coord.elevation : 0); // Ensure elevation is defined
+
+        // Log the values for debugging
+        console.log("Latitudes:", latitudes);
+        console.log("Longitudes:", longitudes);
+        console.log("Elevations:", elevations);
+
+        const trace = {
+            x: longitudes,
+            y: latitudes,
+            z: elevations,
+            mode: 'lines+markers',
+            type: 'scatter3d',
+            marker: {
+                size: 5,
+                color: elevations, // Color by elevation
+                colorscale: 'Viridis', // Color scale
+                showscale: true
+            }
+        };
+
+        const layout = {
+            title: '3D Path Plot',
+            scene: {
+                xaxis: { title: 'Longitude' },
+                yaxis: { title: 'Latitude' },
+                zaxis: { title: 'Elevation' },
+                camera: {
+                    eye: { x: 1.5, y: 1.5, z: 1.5 } // Initial camera position
+                }
+            }
+        };
+
+        // Plotting the 3D graph
+        Plotly.newPlot('3d-plot', [trace], layout);
+    }
+
+
     // Function to display run details
     function displayRunDetails(data) {
         const detailsContainer = $('#run-details');
@@ -139,10 +238,10 @@ $(document).ready(function() {
         $(this).text(buttonText);
     });
 
-    // Toggle elevation plot container
-    $('#toggle-elevation').click(function() {
-        $('#elevation-plot-container').toggle();
-        const buttonText = $('#elevation-plot-container').is(':visible') ? 'Hide Elevation Plot' : 'Show Elevation Plot';
+    // Toggle 3D plot container
+    $('#toggle-3d-plot').click(function() {
+        $('#3d-plot-container').toggle();
+        const buttonText = $('#3d-plot-container').is(':visible') ? 'Hide 3D Plot' : 'Show 3D Plot';
         $(this).text(buttonText);
     });
 });

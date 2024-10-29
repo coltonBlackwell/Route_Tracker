@@ -15,6 +15,8 @@ body {
 
 #display-box{
     background-color: white;
+    transition: max-height 0.3s ease-out;
+    overflow: hidden; /* Prevents content from spilling out */
     
 } 
 
@@ -32,4 +34,4 @@ body {
     left: 0; /* Align to the left */
     z-index: -1; /* Behind the controls */
 }
-
+/* 
