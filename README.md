@@ -6,8 +6,7 @@
 
 ## Description
 
-A web application designed to track and measure your walking, biking, and driving routes.
-Combines the use of Flask, JS, HTML, CSS, gpxpy, and much more to deliver an enjoyable user experience.
+A Flask web application for visualizing GPX files, providing a simple interface to display GPS data and plot paths in 3D. It’s designed as an easy-to-use tool for accessing GPX data and generating visual insights into the paths.
 
 ## Run
 - python3 app.py
