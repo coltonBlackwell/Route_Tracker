@@ -1,12 +1,11 @@
 $(document).ready(function() {
-
+    // Toggle display box functionality
     $('#toggle-display-box').click(function() {
         $('#display-box').toggle();
         const isVisible = $('#display-box').is(':visible');
         $(this).text(isVisible ? 'Hide' : 'Show');
     });
 
-    
     // Initialize the map once the DOM is fully loaded
     var map = L.map('map').setView([45.5236, -122.6750], 13); // Default location (centered on Portland, OR)
 
@@ -19,65 +18,67 @@ $(document).ready(function() {
 
     // Unified function to load and display the selected run with polyline and individual dots
     window.loadRun = function(filename) {
-        $.getJSON(`/view_run/${filename}`, function(data) {
-
+        $.getJSON(`/view_run/${filename}`)
+            .done(function(data) {
                 // Clear previously active link
-            $('#gpx-list a').removeClass('active');
-            // Add active class to the current link
-            $(`#gpx-list a:contains('${filename}')`).addClass('active');
+                $('#gpx-list a').removeClass('active');
+                // Add active class to the current link
+                $(`#gpx-list a:contains('${filename}')`).addClass('active');
 
+                // Clear previous layers
+                if (polyline) {
+                    map.removeLayer(polyline);
+                    polyline = null;
+                }
+                if (window.dots) {
+                    window.dots.forEach(dot => map.removeLayer(dot));
+                }
+                window.dots = [];
 
-            // Clear previous layers
-            if (polyline) {
-                map.removeLayer(polyline);
-                polyline = null;
-            }
-            if (window.dots) {
-                window.dots.forEach(dot => map.removeLayer(dot));
-            }
-            window.dots = [];
-    
-            function getColor(speed) {
-                if (speed > 80) return '#32CD32'; // High speed - Lime Green
-                else if (speed > 60) return '#90EE90'; // Slightly lower high speed - Light Green
-                else if (speed > 35) return '#FFD700'; // Moderate speed - Gold
-                else if (speed > 15) return '#FFA500'; // Slightly lower moderate speed - Orange
-                else return '#FF6347'; // Low speed - Tomato
-            }
+                // Function to determine color based on speed
+                function getColor(speed) {
+                    if (speed > 80) return '#32CD32'; // High speed - Lime Green
+                    else if (speed > 60) return '#90EE90'; // Slightly lower high speed - Light Green
+                    else if (speed > 35) return '#FFD700'; // Moderate speed - Gold
+                    else if (speed > 15) return '#FFA500'; // Slightly lower moderate speed - Orange
+                    else return '#FF6347'; // Low speed - Tomato
+                }
 
-            // Array to hold latlngs for the polyline
-            var latlngs = [];
-    
-            // Add individual dots with speed tooltips and colors
-            data.coordinates.forEach(coord => {
-                const color = getColor(coord.speed); // Determine color based on speed
-                const dot = L.circleMarker([coord.latitude, coord.longitude], {
-                    radius: 5,
-                    color: color,
-                    fillColor: color,
-                    fillOpacity: 0.7
-                }).addTo(map);
-    
-                // Tooltip shows speed on hover
-                const tooltipText = coord.speed ? `Speed: ${coord.speed} km/h` : 'Speed unavailable';
-                dot.bindTooltip(tooltipText, { permanent: false, direction: 'top' });
-    
-                window.dots.push(dot);
-                latlngs.push([coord.latitude, coord.longitude]); // Add to latlngs array
+                // Array to hold latlngs for the polyline
+                var latlngs = [];
+
+                // Add individual dots with speed tooltips and colors
+                data.coordinates.forEach(coord => {
+                    const color = getColor(coord.speed); // Determine color based on speed
+                    const dot = L.circleMarker([coord.latitude, coord.longitude], {
+                        radius: 5,
+                        color: color,
+                        fillColor: color,
+                        fillOpacity: 0.7
+                    }).addTo(map);
+
+                    // Tooltip shows speed on hover
+                    const tooltipText = coord.speed ? `Speed: ${coord.speed} km/h` : 'Speed unavailable';
+                    dot.bindTooltip(tooltipText, { permanent: false, direction: 'top' });
+
+                    window.dots.push(dot);
+                    latlngs.push([coord.latitude, coord.longitude]); // Add to latlngs array
+                });
+
+                // Create a polyline using the latlngs array to connect the dots
+                if (latlngs.length > 0) {
+                    polyline = L.polyline(latlngs, { color: 'black', weight: 2 }).addTo(map);
+                    map.fitBounds(polyline.getBounds()); // Adjust map view to fit the polyline
+                } else {
+                    alert('No coordinates found for this run.');
+                }
+
+                displayRunDetails(data);
+                $('#elevation-plot').attr('src', `/elevation_plot/${filename}`);
+            })
+            .fail(function(err) {
+                alert('Error loading run: ' + (err.responseJSON ? err.responseJSON.error : err.statusText));
             });
-    
-            // Create a polyline using the latlngs array to connect the dots
-            if (latlngs.length > 0) {
-                polyline = L.polyline(latlngs, { color: 'black', weight: 2 }).addTo(map);
-                map.fitBounds(polyline.getBounds()); // Adjust map view to fit the polyline
-            }
-
-            displayRunDetails(data);
-            $('#elevation-plot').attr('src', `/elevation_plot/${filename}`);
-            // create3DPlot(data.coordinates); // Create 3D plot with coordinates
-        }).fail(function(err) {
-            alert('Error loading run: ' + (err.responseJSON ? err.responseJSON.error : err.statusText));
-        });
     };
 
     // Function to handle the file upload
@@ -168,49 +169,6 @@ $(document).ready(function() {
             .catch(error => console.error('Error:', error));
     });
     
-
-    // Function to create 3D plot using Plotly
-    function create3DPlot(coordinates) {
-        // Map latitude, longitude, and elevation from coordinates
-        const latitudes = coordinates.map(coord => coord.latitude);
-        const longitudes = coordinates.map(coord => coord.longitude);
-        const elevations = coordinates.map(coord => coord.elevation !== undefined ? coord.elevation : 0); // Ensure elevation is defined
-
-        // Log the values for debugging
-        console.log("Latitudes:", latitudes);
-        console.log("Longitudes:", longitudes);
-        console.log("Elevations:", elevations);
-
-        const trace = {
-            x: longitudes,
-            y: latitudes,
-            z: elevations,
-            mode: 'lines+markers',
-            type: 'scatter3d',
-            marker: {
-                size: 5,
-                color: elevations, // Color by elevation
-                colorscale: 'Viridis', // Color scale
-                showscale: true
-            }
-        };
-
-        const layout = {
-            title: '3D Path Plot',
-            scene: {
-                xaxis: { title: 'Longitude' },
-                yaxis: { title: 'Latitude' },
-                zaxis: { title: 'Elevation' },
-                camera: {
-                    eye: { x: 1.5, y: 1.5, z: 1.5 } // Initial camera position
-                }
-            }
-        };
-
-        // Plotting the 3D graph
-        Plotly.newPlot('3d-plot', [trace], layout);
-    }
-
 
     // Function to display run details
     function displayRunDetails(data) {

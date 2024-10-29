@@ -13,9 +13,9 @@
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <script src="{{ url_for('static', filename='app.js') }}"></script> <!-- Link to the JS file -->
 </head>
-<body>
+<body style="background-color: rgba(255, 249, 224, 0.839);">
     <div class="container">
-        <button id="toggle-display-box" class="btn btn-primary">Hide</button>
+        <button id="toggle-display-box" class="btn btn-dark">Hide</button>
         <div class="row">
             <div class="col" id="display-box">
                 <div id="controls">
@@ -81,13 +81,14 @@
                                 <h3>Elevation Over Time</h3>
                                 <img id="elevation-plot" src="" alt="Elevation Plot" style="width:100%; max-width:350px;">
 
+                                <div>
+                                    <h2>3D Visualizer</h2>
+                                    <button id="plot-button">Show 3D Plot</button>
+                                    <div id="3d-plot" style="width: 100%; height: 600px;"></div>
+                                </div>
+
                             </div>
                         </div>
-                    </div>
-                    <div>
-                        <h2>3D Visualizer</h2>
-                        <button id="plot-button">Show 3D Plot</button>
-                        <div id="3d-plot" style="width: 100%; height: 600px;"></div>
                     </div>
                 </div>
             </div>
