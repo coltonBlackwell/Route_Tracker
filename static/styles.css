@@ -1,5 +1,4 @@
-
-/*
+/* General body styling */
 body {
     font-family: Arial, sans-serif;
     margin: 0;
@@ -8,18 +7,21 @@ body {
     color: #333;
     line-height: 1.6;
     height: 100vh; /* Full viewport height */
+}
 
-
-
-/* General body styling */
-
-#display-box{
-    background-color: white;
-    transition: max-height 0.3s ease-out;
-    overflow: hidden; /* Prevents content from spilling out */
-    
-} 
-
+/* Style for the information box */
+#display-box {
+    background-color: white; /* White background */
+    border: 2px solid black; /* Black border */
+    border-radius: 5px; /* Optional: rounded corners */
+    padding: 20px; /* Space inside the box */
+    margin: 20px; /* Space outside the box */
+    max-height: 70vh; /* Set a max height for scrolling */
+    overflow-y: auto; /* Enable vertical scrolling */
+    overflow-x: hidden; /* Prevent horizontal overflow */
+    position: relative; /* Relative positioning to ensure it sits above the map */
+    z-index: 1; /* Ensure it is above the map */
+}
 
 #run-details {
     background-color: white;
@@ -28,10 +30,26 @@ body {
 /* Map container - full width and height */
 #map {
     width: 100%; /* Full width */
-    height: 100%; /* Full height */
-    position: absolute;
-    top: 0; /* Align to the top */
-    left: 0; /* Align to the left */
-    z-index: -1; /* Behind the controls */
+    height: calc(100% - 40px); /* Adjust height based on your layout */
+    position: relative; /* Relative positioning */
+    z-index: 0; /* Behind the controls */
 }
-/* 
+
+.legend {
+    display: flex;
+    flex-direction: column;
+    width: 200px;
+    margin: 20px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    margin: 5px 0;
+}
+
+.color-box {
+    width: 20px;
+    height: 20px;
+    margin-right: 10px;
+}
