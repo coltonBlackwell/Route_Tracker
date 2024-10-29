@@ -1,7 +1,6 @@
 # Route Tracker
 
 ![Main Image](Gallery/Screenshot%20from%202024-10-28%2020-29-40.png)
-![Main Image](Gallery/Screenshot%20from%202024-10-28%2020-30-23.png)
 
 
 ## Description
